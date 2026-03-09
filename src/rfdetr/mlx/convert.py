@@ -16,7 +16,13 @@ from typing import Any
 import torch
 
 from rfdetr.assets.model_weights import download_pretrain_weights
-from rfdetr.mlx.config import MLXModelConfig, RFDETRLargeMLXConfig, RFDETRSegLargeMLXConfig
+from rfdetr.mlx.config import (
+    MLXModelConfig,
+    RFDETRLargeMLXConfig,
+    RFDETRMediumMLXConfig,
+    RFDETRSegLargeMLXConfig,
+    RFDETRSegMediumMLXConfig,
+)
 
 
 def _import_mlx() -> tuple[Any, Any]:
@@ -114,12 +120,22 @@ def main() -> None:
 
     parser = argparse.ArgumentParser("Convert RF-DETR PyTorch checkpoints to MLX safetensors")
     parser.add_argument("checkpoint", nargs="?", help="Path to a PyTorch checkpoint to convert")
-    parser.add_argument("--model", choices=["large", "seg-large"], help="Convert a built-in pretrained checkpoint")
+    parser.add_argument(
+        "--model",
+        choices=["medium", "large", "seg-medium", "seg-large"],
+        help="Convert a built-in pretrained checkpoint",
+    )
     parser.add_argument("--output", default=".", help="Output file or directory")
     args = parser.parse_args()
 
     if args.model:
-        config = RFDETRLargeMLXConfig if args.model == "large" else RFDETRSegLargeMLXConfig
+        configs = {
+            "medium": RFDETRMediumMLXConfig,
+            "large": RFDETRLargeMLXConfig,
+            "seg-medium": RFDETRSegMediumMLXConfig,
+            "seg-large": RFDETRSegLargeMLXConfig,
+        }
+        config = configs[args.model]
         output = convert_pretrained_checkpoint(config, args.output)
     elif args.checkpoint:
         output = convert_checkpoint(args.checkpoint, args.output)

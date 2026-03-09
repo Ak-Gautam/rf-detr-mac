@@ -662,93 +662,9 @@ class Model:
         batch_size=1,
         **kwargs,
     ):
-        """Export the trained model to ONNX format"""
-        logger.info("Exporting model to ONNX format")
-        try:
-            from rfdetr.deploy.export import export_onnx, make_infer_image, onnx_simplify
-        except ImportError:
-            logger.error(
-                "It seems some dependencies for ONNX export are missing. Please run `pip install rfdetr[onnxexport]` and try again."
-            )
-            raise
-
-        device = self.device
-        model = deepcopy(self.model.to("cpu"))
-        model.to(device)
-
-        os.makedirs(output_dir, exist_ok=True)
-        output_dir = Path(output_dir)
-        if shape is None:
-            shape = (self.resolution, self.resolution)
-        else:
-            if shape[0] % 14 != 0 or shape[1] % 14 != 0:
-                raise ValueError("Shape must be divisible by 14")
-
-        input_tensors = make_infer_image(infer_dir, shape, batch_size, device).to(device)
-        input_names = ["input"]
-        if backbone_only:
-            output_names = ["features"]
-        elif self.args.segmentation_head:
-            output_names = ["dets", "labels", "masks"]
-        else:
-            output_names = ["dets", "labels"]
-
-        dynamic_axes = None
-        model.eval()
-        with torch.no_grad():
-            if backbone_only:
-                features = model(input_tensors)
-                logger.debug(f"PyTorch inference output shape: {features.shape}")
-            elif self.args.segmentation_head:
-                outputs = model(input_tensors)
-                dets = outputs["pred_boxes"]
-                labels = outputs["pred_logits"]
-                masks = outputs["pred_masks"]
-                if isinstance(masks, torch.Tensor):
-                    logger.debug(
-                        f"PyTorch inference output shapes - Boxes: {dets.shape}, Labels: {labels.shape}, "
-                        f"Masks: {masks.shape}"
-                    )
-                else:
-                    # masks is a dict with spatial_features, query_features, bias
-                    logger.debug(f"PyTorch inference output shapes - Boxes: {dets.shape}, Labels: {labels.shape}")
-                    logger.debug(
-                        "Mask spatial_features: "
-                        f"{masks['spatial_features'].shape}, "
-                        f"query_features: {masks['query_features'].shape}, "
-                        f"bias: {masks['bias'].shape}"
-                    )
-            else:
-                outputs = model(input_tensors)
-                dets = outputs["pred_boxes"]
-                labels = outputs["pred_logits"]
-                logger.debug(f"PyTorch inference output shapes - Boxes: {dets.shape}, Labels: {labels.shape}")
-        model.cpu()
-        input_tensors = input_tensors.cpu()
-
-        # Export to ONNX
-        output_file = export_onnx(
-            output_dir=output_dir,
-            model=model,
-            input_names=input_names,
-            input_tensors=input_tensors,
-            output_names=output_names,
-            dynamic_axes=dynamic_axes,
-            backbone_only=backbone_only,
-            verbose=verbose,
-            opset_version=opset_version,
-        )
-
-        logger.info(f"Successfully exported ONNX model to: {output_file}")
-
-        if simplify:
-            sim_output_file = onnx_simplify(
-                onnx_dir=output_file, input_names=input_names, input_tensors=input_tensors, force=force
-            )
-            logger.info(f"Successfully simplified ONNX model to: {sim_output_file}")
-
-        logger.info("ONNX export completed successfully")
-        self.model = self.model.to(device)
+        """Export is not supported in the Mac-only fork."""
+        del output_dir, infer_dir, simplify, backbone_only, opset_version, verbose, force, shape, batch_size, kwargs
+        raise NotImplementedError("ONNX/TensorRT export was removed from this Mac-only fork.")
 
 
 if __name__ == "__main__":
@@ -764,79 +680,6 @@ if __name__ == "__main__":
         distill(**config)
     elif args.subcommand is None:
         main(**config)
-    elif args.subcommand == "export_model":
-        filter_keys = [
-            "num_classes",
-            "grad_accum_steps",
-            "lr",
-            "lr_encoder",
-            "weight_decay",
-            "epochs",
-            "lr_drop",
-            "clip_max_norm",
-            "lr_vit_layer_decay",
-            "lr_component_decay",
-            "dropout",
-            "drop_path",
-            "drop_mode",
-            "drop_schedule",
-            "cutoff_epoch",
-            "pretrained_encoder",
-            "pretrain_weights",
-            "pretrain_exclude_keys",
-            "pretrain_keys_modify_to_load",
-            "freeze_florence",
-            "freeze_aimv2",
-            "decoder_norm",
-            "set_cost_class",
-            "set_cost_bbox",
-            "set_cost_giou",
-            "cls_loss_coef",
-            "bbox_loss_coef",
-            "giou_loss_coef",
-            "focal_alpha",
-            "aux_loss",
-            "sum_group_losses",
-            "use_varifocal_loss",
-            "use_position_supervised_loss",
-            "ia_bce_loss",
-            "dataset_file",
-            "coco_path",
-            "dataset_dir",
-            "square_resize_div_64",
-            "output_dir",
-            "checkpoint_interval",
-            "seed",
-            "resume",
-            "start_epoch",
-            "eval",
-            "use_ema",
-            "ema_decay",
-            "ema_tau",
-            "num_workers",
-            "device",
-            "world_size",
-            "dist_url",
-            "sync_bn",
-            "fp16_eval",
-            "infer_dir",
-            "verbose",
-            "opset_version",
-            "dry_run",
-            "shape",
-        ]
-        for key in filter_keys:
-            config.pop(key, None)  # Use pop with None to avoid KeyError
-
-        from deploy.export import main as export_main
-
-        if args.batch_size != 1:
-            config["batch_size"] = 1
-            logger.info(
-                f"Only batch_size 1 is supported for onnx export, \
-                 but got batchsize = {args.batch_size}. batch_size is forcibly set to 1."
-            )
-        export_main(**config)
 
 
 def get_args_parser():
@@ -983,7 +826,7 @@ def get_args_parser():
     parser.add_argument("--num_workers", default=2, type=int)
 
     # distributed training parameters
-    parser.add_argument("--device", default="cuda", help="device to use for training / testing")
+    parser.add_argument("--device", default="mps", help="device to use for training / testing")
     parser.add_argument("--world_size", default=1, type=int, help="number of distributed processes")
     parser.add_argument("--dist_url", default="env://", help="url used to set up distributed training")
     parser.add_argument(
@@ -1038,20 +881,10 @@ def get_args_parser():
         "--early_stopping_use_ema", action="store_true", help="Use EMA model metrics for early stopping"
     )
     # subparsers
-    subparsers = parser.add_subparsers(
+    parser.add_subparsers(
         title="sub-commands", dest="subcommand", description="valid subcommands", help="additional help"
     )
 
-    # subparser for export model
-    parser_export = subparsers.add_parser("export_model", help="LWDETR model export")
-    parser_export.add_argument("--infer_dir", type=str, default=None)
-    parser_export.add_argument("--verbose", type=ast.literal_eval, default=False, nargs="?", const=True)
-    parser_export.add_argument("--opset_version", type=int, default=17)
-    parser_export.add_argument("--simplify", action="store_true", help="Simplify onnx model")
-    parser_export.add_argument("--tensorrt", "--trtexec", "--trt", action="store_true", help="build tensorrt engine")
-    parser_export.add_argument("--dry-run", "--test", "-t", action="store_true", help="just print command")
-    parser_export.add_argument("--profile", action="store_true", help="Run nsys profiling during TensorRT export")
-    parser_export.add_argument("--shape", type=int, nargs=2, default=(640, 640), help="input shape (width, height)")
     return parser
 
 
@@ -1158,7 +991,7 @@ def populate_args(
     ema_tau=0,
     num_workers=2,
     # Distributed training parameters
-    device="cuda",
+    device="mps",
     world_size=1,
     dist_url="env://",
     sync_bn=True,

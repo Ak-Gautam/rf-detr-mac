@@ -4,7 +4,7 @@
 # Licensed under the Apache License, Version 2.0 [see LICENSE for details]
 # ------------------------------------------------------------------------
 
-"""Inference-only MLX model configs for the first Apple Silicon port."""
+"""Inference-only MLX model configs for the Mac-only RF-DETR fork."""
 
 from dataclasses import dataclass
 
@@ -69,6 +69,31 @@ RFDETRLargeMLXConfig = MLXModelConfig(
 )
 
 
+RFDETRMediumMLXConfig = MLXModelConfig(
+    name="rfdetr-medium-mlx",
+    num_classes=90,
+    resolution=576,
+    patch_size=16,
+    hidden_dim=256,
+    backbone_dim=384,
+    backbone_heads=6,
+    backbone_layers=12,
+    backbone_mlp_ratio=4,
+    dec_layers=4,
+    sa_nheads=8,
+    ca_nheads=16,
+    dec_n_points=2,
+    num_windows=2,
+    num_queries=300,
+    num_query_embeddings=300,
+    num_select=300,
+    positional_encoding_size=576 // 16,
+    projector_scales=("P4",),
+    out_feature_indexes=(3, 6, 9, 12),
+    checkpoint_name="rf-detr-medium.pth",
+)
+
+
 RFDETRSegLargeMLXConfig = MLXModelConfig(
     name="rfdetr-seg-large-mlx",
     num_classes=90,
@@ -92,4 +117,30 @@ RFDETRSegLargeMLXConfig = MLXModelConfig(
     out_feature_indexes=(3, 6, 9, 12),
     segmentation_head=True,
     checkpoint_name="rf-detr-seg-large.pt",
+)
+
+
+RFDETRSegMediumMLXConfig = MLXModelConfig(
+    name="rfdetr-seg-medium-mlx",
+    num_classes=90,
+    resolution=432,
+    patch_size=12,
+    hidden_dim=256,
+    backbone_dim=384,
+    backbone_heads=6,
+    backbone_layers=12,
+    backbone_mlp_ratio=4,
+    dec_layers=5,
+    sa_nheads=8,
+    ca_nheads=16,
+    dec_n_points=2,
+    num_windows=2,
+    num_queries=200,
+    num_query_embeddings=200,
+    num_select=200,
+    positional_encoding_size=432 // 12,
+    projector_scales=("P4",),
+    out_feature_indexes=(3, 6, 9, 12),
+    segmentation_head=True,
+    checkpoint_name="rf-detr-seg-medium.pt",
 )

@@ -10,33 +10,22 @@ if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") is None:
     os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
 from rfdetr.detr import (
-    RFDETRBase,
     RFDETRLarge,
-    RFDETRLargeDeprecated,
     RFDETRMedium,
-    RFDETRNano,
-    RFDETRSeg2XLarge,
     RFDETRSegLarge,
     RFDETRSegMedium,
-    RFDETRSegNano,
-    RFDETRSegPreview,
-    RFDETRSegSmall,
-    RFDETRSegXLarge,
-    RFDETRSmall,
 )
 from rfdetr.lit import RFDETRDataModule, RFDETRModule, build_trainer
 
 __all__ = [
-    "RFDETRNano",
-    "RFDETRSmall",
     "RFDETRMedium",
     "RFDETRLarge",
-    "RFDETRSegNano",
-    "RFDETRSegSmall",
     "RFDETRSegMedium",
     "RFDETRSegLarge",
-    "RFDETRSegXLarge",
-    "RFDETRSeg2XLarge",
+    "RFDETRMediumMLX",
+    "RFDETRLargeMLX",
+    "RFDETRSegMediumMLX",
+    "RFDETRSegLargeMLX",
     "RFDETRModule",
     "RFDETRDataModule",
     "build_trainer",
@@ -44,23 +33,11 @@ __all__ = [
 
 
 def __getattr__(name: str):
-    """Resolve plus-only exports lazily, raising only on explicit access."""
-    _PLUS_EXPORTS = {"RFDETR2XLarge", "RFDETRXLarge"}
-    if name in _PLUS_EXPORTS:
-        from rfdetr.platform import _INSTALL_MSG
-        from rfdetr.platform import models as _platform_models
+    """Resolve MLX exports lazily to avoid importing MLX unnecessarily."""
+    if name in {"RFDETRMediumMLX", "RFDETRLargeMLX", "RFDETRSegMediumMLX", "RFDETRSegLargeMLX"}:
+        from rfdetr import mlx as mlx_module
 
-        # Cache the resolved symbol to avoid repeated attribute lookups.
-        if hasattr(_platform_models, name):
-            value = getattr(_platform_models, name)
-            globals()[name] = value
-            # Keep __all__ in sync with dynamically resolved exports.
-            if name not in __all__:
-                __all__.append(name)
-            return value
-
-        # The name is expected to be plus-only; raise a clear install hint.
-        raise ImportError(_INSTALL_MSG.format(name="platform model downloads"))
-
-    # Non-plus names fall back to the default attribute error.
+        value = getattr(mlx_module, name)
+        globals()[name] = value
+        return value
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
