@@ -11,13 +11,13 @@ from rfdetr.assets import ModelWeightAsset, ModelWeights, ModelWeightsBase
 
 def test_from_filename_found():
     """Test from_filename with valid filename."""
-    asset = ModelWeights.from_filename("rf-detr-base.pth")
+    asset = ModelWeights.from_filename("rf-detr-medium.pth")
 
     assert asset is not None
     assert isinstance(asset, ModelWeightAsset)
-    assert asset.filename == "rf-detr-base.pth"
+    assert asset.filename == "rf-detr-medium.pth"
     assert asset.url.startswith("http")
-    assert "rf-detr-base-coco.pth" in asset.url
+    assert "medium_coco" in asset.url
 
 
 def test_from_filename_not_found():
@@ -28,12 +28,12 @@ def test_from_filename_not_found():
 
 def test_get_url():
     """Test get_url class method."""
-    url = ModelWeights.get_url("rf-detr-base.pth")
+    url = ModelWeights.get_url("rf-detr-medium.pth")
 
     assert url is not None
     assert isinstance(url, str)
     assert url.startswith("http")
-    assert "rf-detr-base-coco.pth" in url
+    assert "medium_coco" in url
 
 
 def test_get_url_not_found():
@@ -44,7 +44,7 @@ def test_get_url_not_found():
 
 def test_get_md5():
     """Test get_md5 class method."""
-    md5 = ModelWeights.get_md5("rf-detr-base.pth")
+    md5 = ModelWeights.get_md5("rf-detr-medium.pth")
 
     # MD5 may be None if not yet computed
     assert md5 is None or isinstance(md5, str)
@@ -61,8 +61,8 @@ def test_list_models():
 
     assert isinstance(models, list)
     assert len(models) > 0
-    assert "rf-detr-base.pth" in models
-    assert "rf-detr-large.pth" in models
+    assert "rf-detr-medium.pth" in models
+    assert "rf-detr-large-2026.pth" in models
 
     # All entries should be strings
     assert all(isinstance(m, str) for m in models)

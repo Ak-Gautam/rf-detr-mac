@@ -684,7 +684,7 @@ class TestPublicAPIExports:
         """Original RFDETR* class exports are unchanged."""
         import rfdetr
 
-        for name in ["RFDETRNano", "RFDETRSmall", "RFDETRMedium", "RFDETRLarge"]:
+        for name in ["RFDETRMedium", "RFDETRLarge", "RFDETRSegMedium", "RFDETRSegLarge"]:
             assert hasattr(rfdetr, name), f"rfdetr.{name} unexpectedly missing"
 
     def test_convert_legacy_checkpoint_not_in_rfdetr_namespace(self):

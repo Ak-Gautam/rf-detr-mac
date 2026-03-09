@@ -8,7 +8,12 @@
 
 import torch
 
-from rfdetr.mlx.config import RFDETRLargeMLXConfig, RFDETRSegLargeMLXConfig
+from rfdetr.mlx.config import (
+    RFDETRLargeMLXConfig,
+    RFDETRMediumMLXConfig,
+    RFDETRSegLargeMLXConfig,
+    RFDETRSegMediumMLXConfig,
+)
 from rfdetr.mlx.convert import _reshape_weight_for_mlx
 
 
@@ -21,11 +26,23 @@ class TestMLXConfig:
         assert RFDETRLargeMLXConfig.num_query_embeddings == 300
         assert RFDETRLargeMLXConfig.group_detr == 13
 
+    def test_medium_config_matches_checkpoint_layout(self) -> None:
+        """Medium detection keeps the same query layout with a smaller resolution."""
+        assert RFDETRMediumMLXConfig.resolution == 576
+        assert RFDETRMediumMLXConfig.num_queries == 300
+        assert RFDETRMediumMLXConfig.num_query_embeddings == 300
+
     def test_seg_large_config_distinguishes_live_and_stored_queries(self) -> None:
         """Segmentation uses 200 live queries but keeps 300 stored query embeddings."""
         assert RFDETRSegLargeMLXConfig.num_queries == 200
         assert RFDETRSegLargeMLXConfig.num_query_embeddings == 300
         assert RFDETRSegLargeMLXConfig.num_select == 200
+
+    def test_seg_medium_config_distinguishes_live_and_stored_queries(self) -> None:
+        """Medium segmentation matches the retained mask-query layout."""
+        assert RFDETRSegMediumMLXConfig.resolution == 432
+        assert RFDETRSegMediumMLXConfig.num_queries == 200
+        assert RFDETRSegMediumMLXConfig.num_query_embeddings == 200
 
 
 class TestConvertLayouts:

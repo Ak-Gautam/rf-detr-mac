@@ -31,19 +31,10 @@ except:
 from rfdetr.assets.model_weights import download_pretrain_weights
 from rfdetr.config import (
     ModelConfig,
-    RFDETRBaseConfig,
     RFDETRLargeConfig,
-    RFDETRLargeDeprecatedConfig,
     RFDETRMediumConfig,
-    RFDETRNanoConfig,
-    RFDETRSeg2XLargeConfig,
     RFDETRSegLargeConfig,
     RFDETRSegMediumConfig,
-    RFDETRSegNanoConfig,
-    RFDETRSegPreviewConfig,
-    RFDETRSegSmallConfig,
-    RFDETRSegXLargeConfig,
-    RFDETRSmallConfig,
     SegmentationTrainConfig,
     TrainConfig,
 )
@@ -63,8 +54,7 @@ logger = get_logger()
 class RFDETR:
     """
     The base RF-DETR class implements the core methods for training RF-DETR models,
-    running inference on the models, optimising models, and uploading trained
-    models for deployment.
+    running inference on the models, and optimizing models for Apple Silicon use.
     """
 
     means = [0.485, 0.456, 0.406]
@@ -223,12 +213,9 @@ class RFDETR:
         self._optimized_half = False
 
     def export(self, **kwargs):
-        """
-        Export your model to an ONNX file.
-
-        See [the ONNX export documentation](https://rfdetr.roboflow.com/learn/export/) for more information.
-        """
-        self.model.export(**kwargs)
+        """Export is no longer supported in this Mac-only fork."""
+        del kwargs
+        raise NotImplementedError("ONNX/TensorRT export was removed from this Mac-only fork.")
 
     @staticmethod
     def _load_classes(dataset_dir: str) -> List[str]:
@@ -537,93 +524,10 @@ class RFDETR:
 
         return detections_list if len(detections_list) > 1 else detections_list[0]
 
-    def deploy_to_roboflow(self, workspace: str, project_id: str, version: str, api_key: str = None, size: str = None):
-        """
-        Deploy the trained RF-DETR model to Roboflow.
-
-        Deploying with Roboflow will create a Serverless API to which you can make requests.
-
-        You can also download weights into a Roboflow Inference deployment for use in Roboflow Workflows and on-device deployment.
-
-        Args:
-            workspace (str): The name of the Roboflow workspace to deploy to.
-            project_ids (List[str]): A list of project IDs to which the model will be deployed
-            api_key (str, optional): Your Roboflow API key. If not provided,
-                it will be read from the environment variable `ROBOFLOW_API_KEY`.
-            size (str, optional): The size of the model to deploy. If not provided,
-                it will default to the size of the model being trained (e.g., "rfdetr-base", "rfdetr-large", etc.).
-            model_name (str, optional): The name you want to give the uploaded model.
-            If not provided, it will default to "<size>-uploaded".
-        Raises:
-            ValueError: If the `api_key` is not provided and not found in the environment
-                variable `ROBOFLOW_API_KEY`, or if the `size` is not set for custom architectures.
-        """
-        import shutil
-
-        from roboflow import Roboflow
-
-        if api_key is None:
-            api_key = os.getenv("ROBOFLOW_API_KEY")
-            if api_key is None:
-                raise ValueError("Set api_key=<KEY> in deploy_to_roboflow or export ROBOFLOW_API_KEY=<KEY>")
-
-        rf = Roboflow(api_key=api_key)
-        workspace = rf.workspace(workspace)
-
-        if self.size is None and size is None:
-            raise ValueError("Must set size for custom architectures")
-
-        size = self.size or size
-        tmp_out_dir = ".roboflow_temp_upload"
-        os.makedirs(tmp_out_dir, exist_ok=True)
-        outpath = os.path.join(tmp_out_dir, "weights.pt")
-        torch.save({"model": self.model.model.state_dict(), "args": self.model.args}, outpath)
-        project = workspace.project(project_id)
-        version = project.version(version)
-        version.deploy(model_type=size, model_path=tmp_out_dir, filename="weights.pt")
-        shutil.rmtree(tmp_out_dir)
-
-
-class RFDETRBase(RFDETR):
-    """
-    Train an RF-DETR Base model (29M parameters).
-    """
-
-    size = "rfdetr-base"
-
-    def get_model_config(self, **kwargs):
-        return RFDETRBaseConfig(**kwargs)
-
-    def get_train_config(self, **kwargs):
-        return TrainConfig(**kwargs)
-
-
-class RFDETRNano(RFDETR):
-    """
-    Train an RF-DETR Nano model.
-    """
-
-    size = "rfdetr-nano"
-
-    def get_model_config(self, **kwargs):
-        return RFDETRNanoConfig(**kwargs)
-
-    def get_train_config(self, **kwargs):
-        return TrainConfig(**kwargs)
-
-
-class RFDETRSmall(RFDETR):
-    """
-    Train an RF-DETR Small model.
-    """
-
-    size = "rfdetr-small"
-
-    def get_model_config(self, **kwargs):
-        return RFDETRSmallConfig(**kwargs)
-
-    def get_train_config(self, **kwargs):
-        return TrainConfig(**kwargs)
+    def deploy_to_roboflow(self, *args, **kwargs):
+        """Deployment is no longer supported in this Mac-only fork."""
+        del args, kwargs
+        raise NotImplementedError("Roboflow deployment was removed from this Mac-only fork.")
 
 
 class RFDETRMedium(RFDETR):
@@ -640,7 +544,7 @@ class RFDETRMedium(RFDETR):
         return TrainConfig(**kwargs)
 
 
-class RFDETRLargeNew(RFDETR):
+class RFDETRLarge(RFDETR):
     size = "rfdetr-large"
 
     def get_model_config(self, **kwargs):
@@ -648,93 +552,6 @@ class RFDETRLargeNew(RFDETR):
 
     def get_train_config(self, **kwargs):
         return TrainConfig(**kwargs)
-
-
-class RFDETRLargeDeprecated(RFDETR):
-    """
-    Train an RF-DETR Large model.
-    """
-
-    size = "rfdetr-large"
-
-    def __init__(self, **kwargs):
-        warnings.warn(
-            "RFDETRLargeDeprecated is deprecated and will be removed in a future version. "
-            "Please use RFDETRLarge instead.",
-            category=DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__(**kwargs)
-
-    def get_model_config(self, **kwargs):
-        return RFDETRLargeDeprecatedConfig(**kwargs)
-
-    def get_train_config(self, **kwargs):
-        return TrainConfig(**kwargs)
-
-
-class RFDETRLarge(RFDETR):
-    size = "rfdetr-large"
-
-    def __init__(self, **kwargs):
-        self.init_error = None
-        self.is_deprecated = False
-        try:
-            super().__init__(**kwargs)
-        except Exception as e:
-            self.init_error = e
-            self.is_deprecated = True
-            try:
-                super().__init__(**kwargs)
-                logger.warning(
-                    "\n"
-                    "=" * 100 + "\n"
-                    "WARNING: Automatically switched to deprecated model configuration, due to using deprecated weights. "
-                    "This will be removed in a future version.\n"
-                    "Please retrain your model with the new weights and configuration.\n"
-                    "=" * 100 + "\n"
-                )
-            except Exception:
-                raise self.init_error
-
-    def get_model_config(self, **kwargs):
-        if not self.is_deprecated:
-            return RFDETRLargeConfig(**kwargs)
-        else:
-            return RFDETRLargeDeprecatedConfig(**kwargs)
-
-    def get_train_config(self, **kwargs):
-        return TrainConfig(**kwargs)
-
-
-class RFDETRSegPreview(RFDETR):
-    size = "rfdetr-seg-preview"
-
-    def get_model_config(self, **kwargs):
-        return RFDETRSegPreviewConfig(**kwargs)
-
-    def get_train_config(self, **kwargs):
-        return SegmentationTrainConfig(**kwargs)
-
-
-class RFDETRSegNano(RFDETR):
-    size = "rfdetr-seg-nano"
-
-    def get_model_config(self, **kwargs):
-        return RFDETRSegNanoConfig(**kwargs)
-
-    def get_train_config(self, **kwargs):
-        return SegmentationTrainConfig(**kwargs)
-
-
-class RFDETRSegSmall(RFDETR):
-    size = "rfdetr-seg-small"
-
-    def get_model_config(self, **kwargs):
-        return RFDETRSegSmallConfig(**kwargs)
-
-    def get_train_config(self, **kwargs):
-        return SegmentationTrainConfig(**kwargs)
 
 
 class RFDETRSegMedium(RFDETR):
@@ -756,22 +573,3 @@ class RFDETRSegLarge(RFDETR):
     def get_train_config(self, **kwargs):
         return SegmentationTrainConfig(**kwargs)
 
-
-class RFDETRSegXLarge(RFDETR):
-    size = "rfdetr-seg-xlarge"
-
-    def get_model_config(self, **kwargs):
-        return RFDETRSegXLargeConfig(**kwargs)
-
-    def get_train_config(self, **kwargs):
-        return SegmentationTrainConfig(**kwargs)
-
-
-class RFDETRSeg2XLarge(RFDETR):
-    size = "rfdetr-seg-2xlarge"
-
-    def get_model_config(self, **kwargs):
-        return RFDETRSeg2XLargeConfig(**kwargs)
-
-    def get_train_config(self, **kwargs):
-        return SegmentationTrainConfig(**kwargs)

@@ -32,6 +32,17 @@ class TestMLXModelTree:
         assert "transformer.enc_out_bbox_embed.0.layers.2.bias" in names
         assert "class_embed.weight" in names
 
+    def test_medium_model_exposes_checkpoint_compatible_parameter_names(self) -> None:
+        """Medium detection keeps the same flattened parameter naming scheme."""
+        from rfdetr.mlx.config import RFDETRMediumMLXConfig
+        from rfdetr.mlx.model import RFDETRForInference
+
+        model = RFDETRForInference(RFDETRMediumMLXConfig)
+        names = {name for name, _ in tree_flatten(model.parameters())}
+        assert "backbone.0.encoder.encoder.embeddings.patch_embeddings.projection.weight" in names
+        assert "transformer.decoder.layers.0.self_attn.in_proj_weight" in names
+        assert "class_embed.weight" in names
+
     def test_seg_large_model_exposes_segmentation_head_parameters(self) -> None:
         """Large segmentation exposes the expected mask-head parameter names."""
         from rfdetr.mlx.config import RFDETRSegLargeMLXConfig
@@ -41,4 +52,14 @@ class TestMLXModelTree:
         names = {name for name, _ in tree_flatten(model.parameters())}
         assert "segmentation_head.blocks.0.dwconv.weight" in names
         assert "segmentation_head.query_features_block.layers.2.weight" in names
+        assert "segmentation_head.query_features_proj.weight" in names
+
+    def test_seg_medium_model_exposes_segmentation_head_parameters(self) -> None:
+        """Medium segmentation exposes the expected mask-head parameter names."""
+        from rfdetr.mlx.config import RFDETRSegMediumMLXConfig
+        from rfdetr.mlx.model import RFDETRForInference
+
+        model = RFDETRForInference(RFDETRSegMediumMLXConfig)
+        names = {name for name, _ in tree_flatten(model.parameters())}
+        assert "segmentation_head.blocks.0.dwconv.weight" in names
         assert "segmentation_head.query_features_proj.weight" in names

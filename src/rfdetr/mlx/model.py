@@ -4,7 +4,7 @@
 # Licensed under the Apache License, Version 2.0 [see LICENSE for details]
 # ------------------------------------------------------------------------
 
-"""Inference-only MLX implementation of the Apache RF-DETR large models."""
+"""Inference-only MLX implementation of the retained RF-DETR Mac models."""
 
 from __future__ import annotations
 
@@ -20,7 +20,13 @@ from PIL import Image
 
 from rfdetr.assets.model_weights import download_pretrain_weights
 from rfdetr.mlx.backbone import Backbone, FeatureMapSpec, build_sine_position_encoding
-from rfdetr.mlx.config import MLXModelConfig, RFDETRLargeMLXConfig, RFDETRSegLargeMLXConfig
+from rfdetr.mlx.config import (
+    MLXModelConfig,
+    RFDETRLargeMLXConfig,
+    RFDETRMediumMLXConfig,
+    RFDETRSegLargeMLXConfig,
+    RFDETRSegMediumMLXConfig,
+)
 from rfdetr.mlx.convert import convert_checkpoint, convert_pretrained_checkpoint
 from rfdetr.mlx.layers import MLP, Conv2dNCHW, Embedding, MSDeformAttn, MultiheadSelfAttention
 from rfdetr.mlx.ops import gen_sineembed_for_position, resize_nchw
@@ -173,7 +179,7 @@ class MLPBlock(nn.Module):
 
 
 class SegmentationHead(nn.Module):
-    """RF-DETR segmentation head for the large segmentation checkpoint."""
+    """RF-DETR segmentation head for the retained segmentation checkpoints."""
 
     def __init__(self, hidden_dim: int, num_blocks: int, downsample_ratio: int) -> None:
         """Initialize the segmentation head.
@@ -292,7 +298,7 @@ class TransformerDecoderLayer(nn.Module):
 
 
 class TransformerDecoder(nn.Module):
-    """RF-DETR decoder used in the large inference checkpoints."""
+    """RF-DETR decoder used in the retained inference checkpoints."""
 
     def __init__(self, config: MLXModelConfig) -> None:
         """Initialize the decoder.
@@ -478,7 +484,7 @@ class RFDETRForInference(nn.Module):
 
 
 class RFDETRMLX:
-    """User-facing MLX inference wrapper for RF-DETR large checkpoints."""
+    """User-facing MLX inference wrapper for retained RF-DETR checkpoints."""
 
     means = np.asarray([0.485, 0.456, 0.406], dtype=np.float32)
     stds = np.asarray([0.229, 0.224, 0.225], dtype=np.float32)
@@ -601,6 +607,18 @@ class RFDETRLargeMLX(RFDETRMLX):
         super().__init__(RFDETRLargeMLXConfig, weights_path=weights_path)
 
 
+class RFDETRMediumMLX(RFDETRMLX):
+    """MLX wrapper for the Apache RF-DETR medium detection checkpoint."""
+
+    def __init__(self, weights_path: str | None = None) -> None:
+        """Create a medium detection model.
+
+        Args:
+            weights_path: Optional converted checkpoint path.
+        """
+        super().__init__(RFDETRMediumMLXConfig, weights_path=weights_path)
+
+
 class RFDETRSegLargeMLX(RFDETRMLX):
     """MLX wrapper for the Apache RF-DETR large segmentation checkpoint."""
 
@@ -611,6 +629,18 @@ class RFDETRSegLargeMLX(RFDETRMLX):
             weights_path: Optional converted checkpoint path.
         """
         super().__init__(RFDETRSegLargeMLXConfig, weights_path=weights_path)
+
+
+class RFDETRSegMediumMLX(RFDETRMLX):
+    """MLX wrapper for the Apache RF-DETR medium segmentation checkpoint."""
+
+    def __init__(self, weights_path: str | None = None) -> None:
+        """Create a medium segmentation model.
+
+        Args:
+            weights_path: Optional converted checkpoint path.
+        """
+        super().__init__(RFDETRSegMediumMLXConfig, weights_path=weights_path)
 
 
 def download_and_prepare_builtin_weights(config: MLXModelConfig, output_dir: str | Path = ".") -> Path:
