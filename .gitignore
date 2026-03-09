@@ -94,12 +94,6 @@ ipython_config.py
 #   install all needed dependencies.
 #Pipfile.lock
 
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-uv.lock
-
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
 #   This is especially recommended for binary packages to ensure reproducibility, and is more
@@ -176,9 +170,13 @@ cython_debug/
 # Jetbrain's IDEs
 .idea/
 
-# model artifacts
-rf-detr*
-output/*
+# local model artifacts
+rf-detr-*.pth
+rf-detr-*.pt
+mlx_out/
+output/
+.mplconfig/
+.uv-cache/
 
 train_test.py
 
@@ -194,10 +192,7 @@ debugging/
 # AI assistant
 .claude/
 
-# Local docs development (versions.json is managed by mike on gh-pages in production)
-docs/versions.json
-
-# do not upload python version or notebooks
+# local notebooks / scratch files
 notebooks/*.py
 
 # tracking work in progress
