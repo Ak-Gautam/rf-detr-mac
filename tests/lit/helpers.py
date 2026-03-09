@@ -1,9 +1,3 @@
-# ------------------------------------------------------------------------
-# RF-DETR
-# Copyright (c) 2025 Roboflow. All Rights Reserved.
-# Licensed under the Apache License, Version 2.0 [see LICENSE for details]
-# ------------------------------------------------------------------------
-
 """Shared test helpers for the rfdetr.lit test suite.
 
 Plain classes and functions (not pytest fixtures) shared across multiple test

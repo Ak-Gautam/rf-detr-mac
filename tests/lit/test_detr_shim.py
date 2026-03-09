@@ -1,9 +1,3 @@
-# ------------------------------------------------------------------------
-# RF-DETR
-# Copyright (c) 2025 Roboflow. All Rights Reserved.
-# Licensed under the Apache License, Version 2.0 [see LICENSE for details]
-# ------------------------------------------------------------------------
-
 """Tests for Chapter 5 / Phase 7+8:
 
 1. ``TestRFDETRTrainPTLShim``  — RFDETR.train_ptl() delegates to PTL build_trainer().fit()

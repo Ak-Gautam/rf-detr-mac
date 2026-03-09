@@ -1,9 +1,3 @@
-# ------------------------------------------------------------------------
-# RF-DETR
-# Copyright (c) 2025 Roboflow. All Rights Reserved.
-# Licensed under the Apache License, Version 2.0 [see LICENSE for details]
-# ------------------------------------------------------------------------
-
 """Smoke tests: Trainer(fast_dev_run=2).fit(module, datamodule) — T7.
 
 Verifies that the PTL training loop runs end-to-end without error for both

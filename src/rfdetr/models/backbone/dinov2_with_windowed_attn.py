@@ -1,12 +1,3 @@
-# ------------------------------------------------------------------------
-# RF-DETR
-# Copyright (c) 2025 Roboflow. All Rights Reserved.
-# Licensed under the Apache License, Version 2.0 [see LICENSE for details]
-# ------------------------------------------------------------------------
-# Modified from HuggingFace Dinov2 (https://github.com/huggingface/transformers)
-# Copyright 2024 Meta Inc. and the HuggingFace Inc. team. All rights reserved.
-# ------------------------------------------------------------------------
-
 import collections.abc
 import math
 from typing import Dict, List, Optional, Set, Tuple, Union

@@ -1,9 +1,3 @@
-# ------------------------------------------------------------------------
-# RF-DETR
-# Copyright (c) 2025 Roboflow. All Rights Reserved.
-# Licensed under the Apache License, Version 2.0 [see LICENSE for details]
-# ------------------------------------------------------------------------
-
 """Checkpoint conversion utilities for the PTL migration (Phase 8).
 
 Provides :func:`convert_legacy_checkpoint` to convert RF-DETR ``*.pth``

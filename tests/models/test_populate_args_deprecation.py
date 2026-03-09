@@ -1,9 +1,3 @@
-# ------------------------------------------------------------------------
-# RF-DETR
-# Copyright (c) 2025 Roboflow. All Rights Reserved.
-# Licensed under the Apache License, Version 2.0 [see LICENSE for details]
-# ------------------------------------------------------------------------
-
 """Tests for the populate_args() deprecation shim — PTL Ch4/T3.
 
 populate_args() must remain fully functional (returns a valid argparse.Namespace)

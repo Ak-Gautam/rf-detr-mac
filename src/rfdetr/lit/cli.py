@@ -1,9 +1,3 @@
-# ------------------------------------------------------------------------
-# RF-DETR
-# Copyright (c) 2025 Roboflow. All Rights Reserved.
-# Licensed under the Apache License, Version 2.0 [see LICENSE for details]
-# ------------------------------------------------------------------------
-
 """LightningCLI entry point for RF-DETR training and evaluation (PTL Ch4/T4).
 
 Provides the ``rfdetr`` command with auto-generated subcommands::

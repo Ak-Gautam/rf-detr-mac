@@ -1,9 +1,3 @@
-# ------------------------------------------------------------------------
-# RF-DETR
-# Copyright (c) 2025 Roboflow. All Rights Reserved.
-# Licensed under the Apache License, Version 2.0 [see LICENSE for details]
-# ------------------------------------------------------------------------
-
 """Integration tests: metrics.csv contains all columns used by plot_metrics().
 
 Runs a minimal PTL training loop (1 epoch, 2 batches each) using mocked model
