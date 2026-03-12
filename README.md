@@ -100,6 +100,30 @@ detections = model.predict(image, threshold=0.2)
 
 The MLX wrappers are inference-only. Training remains in the PyTorch path.
 
+## Export OmnimatteZero Masks
+
+Use the built-in Omnimatte exporter to write `video.mp4` and `object_mask.mp4`
+in the folder layout expected by [OmnimatteZeroEfficient](https://github.com/Ak-Gautam/OmnimatteZeroEfficient).
+
+```bash
+uv run --no-sync python -m rfdetr.omnimatte /path/to/input.mp4 \
+  --omnimatte-root ../OmnimatteZeroEfficient/example_videos \
+  --clip-name my_clip \
+  --model seg-medium \
+  --class-name person
+```
+
+This writes:
+
+- `../OmnimatteZeroEfficient/example_videos/my_clip/video.mp4`
+- `../OmnimatteZeroEfficient/example_videos/my_clip/object_mask.mp4`
+
+The default output root is the sibling `OmnimatteZeroEfficient/example_videos`
+directory if it exists next to this repo. Use `--output-dir` to override it with
+an explicit clip directory. The first version is intentionally narrow: it exports
+the object mask only, so Omnimatte can generate `total_mask.mp4` with its own
+self-attention stage afterward.
+
 ## Model Summary
 
 | Model | Task | Backend |
